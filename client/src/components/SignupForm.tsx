@@ -22,28 +22,27 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    // check if form has everything (as per react-bootstrap docs)
+  
+    // Check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+      return;
     }
-
+  
     try {
-      const response = await createUser(userFormData);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const { token } = await response.json();
+      // Call the createUser function and get the response
+      const { token } = await createUser(userFormData);
+  
+      // Log in the user with the token
       Auth.login(token);
-    } catch (err) {
-      console.error(err);
-      setShowAlert(true);
+    } catch (err: any) {
+      console.error('Error in handleFormSubmit:', err.message); // Log the error message
+      setShowAlert(true); // Show an alert if there's an error
     }
-
+  
+    // Reset the form data
     setUserFormData({
       username: '',
       email: '',

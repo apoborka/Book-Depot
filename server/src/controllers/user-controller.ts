@@ -18,58 +18,105 @@ export const getSingleUser = async (req: Request, res: Response) => {
 };
 
 // create a user, sign a token, and send it back (to client/src/components/SignUpForm.js)
-export const createUser = async (req: Request, res: Response) => {
-  const user = await User.create(req.body);
+export const createUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.create(req.body);
 
-  if (!user) {
-    return res.status(400).json({ message: 'Something is wrong!' });
+    if (!user) {
+      res.status(400).json({ message: 'Something is wrong!' });
+      return;
+    }
+
+    const token = signToken(user.username, user.email, user._id);
+    res.json({ token, user });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  const token = signToken(user.username, user.password, user._id);
-  return res.json({ token, user });
 };
 
 // login a user, sign a token, and send it back (to client/src/components/LoginForm.js)
 // {body} is destructured req.body
-export const login = async (req: Request, res: Response) => {
-  const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.email }] });
-  if (!user) {
-    return res.status(400).json({ message: "Can't find this user" });
-  }
+export const login = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.email }] });
 
-  const correctPw = await user.isCorrectPassword(req.body.password);
+    if (!user) {
+      res.status(400).json({ message: "Can't find this user" });
+      return;
+    }
 
-  if (!correctPw) {
-    return res.status(400).json({ message: 'Wrong password!' });
+    const correctPw = await user.isCorrectPassword(req.body.password);
+
+    if (!correctPw) {
+      res.status(400).json({ message: 'Wrong password!' });
+      return;
+    }
+
+    const token = signToken(user.username, user.email, user._id);
+    res.json({ token, user });
+  } catch (err) {
+    console.error('Error logging in user:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  const token = signToken(user.username, user.password, user._id);
-  return res.json({ token, user });
 };
 
 // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
 // user comes from `req.user` created in the auth middleware function
-export const saveBook = async (req: Request, res: Response) => {
+export const saveBook = async (req: Request, res: Response): Promise<void> => {
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { _id: req.user._id },
-      { $addToSet: { savedBooks: req.body } },
+      { _id: req.user._id }, // Use the authenticated user's ID
+      { $addToSet: { savedBooks: req.body } }, // Add the book to the savedBooks array
       { new: true, runValidators: true }
     );
-    return res.json(updatedUser);
+
+    if (!updatedUser) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.json(updatedUser);
   } catch (err) {
-    console.log(err);
-    return res.status(400).json(err);
+    console.error('Error saving book:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// remove a book from `savedBooks`
-export const deleteBook = async (req: Request, res: Response) => {
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: req.user._id },
-    { $pull: { savedBooks: { bookId: req.params.bookId } } },
-    { new: true }
-  );
-  if (!updatedUser) {
-    return res.status(404).json({ message: "Couldn't find user with this id!" });
+// Get user data for the logged in user
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.user._id).select('-password'); // Exclude the password field
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user data:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  return res.json(updatedUser);
+};
+
+// Remove a book from 'Saved Books'
+export const deleteBook = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.user._id }, // Use the authenticated user's ID
+      { $pull: { savedBooks: { bookId: req.params.bookId } } }, // Remove the book from the savedBooks array
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error('Error deleting book:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };

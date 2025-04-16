@@ -63,28 +63,18 @@ const SearchBooks = () => {
   };
 
   // create function to handle saving a book to our database
-  const handleSaveBook = async (bookId: string) => {
-    // find the book in `searchedBooks` state by the matching id
-    const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
-
-    // get token
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-
+  const handleSaveBook = async (book: Book) => {
+    const token = Auth.getToken();
+  
     if (!token) {
       return false;
     }
-
+  
     try {
-      const response = await saveBook(bookToSave, token);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
-    } catch (err) {
-      console.error(err);
+      await saveBook(book, token); // Call saveBook without assigning the response
+      setSavedBookIds([...savedBookIds, book.bookId]); // Update the saved book IDs in state
+    } catch (err: any) {
+      console.error('Error in handleSaveBook:', err.message);
     }
   };
 
@@ -137,11 +127,11 @@ const SearchBooks = () => {
                       <Button
                         disabled={savedBookIds?.some((savedBookId: string) => savedBookId === book.bookId)}
                         className='btn-block btn-info'
-                        onClick={() => handleSaveBook(book.bookId)}>
+                        onClick={() => handleSaveBook(book)}>
                         {savedBookIds?.some((savedBookId: string) => savedBookId === book.bookId)
                           ? 'This book has already been saved!'
                           : 'Save this Book!'}
-                      </Button>
+                    </Button>
                     )}
                   </Card.Body>
                 </Card>

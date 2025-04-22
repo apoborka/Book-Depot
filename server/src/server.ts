@@ -41,10 +41,18 @@ const startServer = async () => {
 
   const app = express();
   const PORT = process.env.PORT || 3001;
+  const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+
 
   app.use(
     cors({
-      origin: 'http://localhost:3000', // Adjust this for your frontend's URL
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     })
   );
@@ -68,11 +76,11 @@ const startServer = async () => {
   );
 
   // Serve static files from the client build
-  app.use(express.static(path.join(__dirname, '../public')));
+  app.use(express.static(path.join(__dirname, '../../client/dist')));
 
   // Fallback for React Router
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
   });
 
   app.listen(PORT, () => {

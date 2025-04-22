@@ -41,7 +41,7 @@ const startServer = async () => {
 
   const app = express();
   const PORT = process.env.PORT || 3001;
-  const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173', 'https://book-depot-cq2y.onrender.com'];
+  const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'https://book-depot-cq2y.onrender.com'];
 
 
   app.use(

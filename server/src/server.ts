@@ -9,6 +9,7 @@ import { authMiddleware } from './middleware/authMiddleware.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
+import path from 'path';
 
 interface Context extends BaseContext {
   user?: {
@@ -38,7 +39,7 @@ const startServer = async () => {
 
   app.use(
     cors({
-      origin: 'http://localhost:3000',
+      origin: 'http://localhost:3000', // Adjust this for your frontend's URL
       credentials: true,
     })
   );
@@ -60,6 +61,14 @@ const startServer = async () => {
       },
     })
   );
+
+  // Serve static files from the client build
+  app.use(express.static(path.join(__dirname, '../public')));
+
+  // Fallback for React Router
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+  });
 
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}/graphql`);

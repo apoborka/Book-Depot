@@ -5,10 +5,10 @@ import { ApolloServer, BaseContext } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs } from './schemas/typeDefs.js';
 import { resolvers } from './schemas/resolvers.js';
-import { authMiddleware } from './middleware/authMiddleware.js'; // Corrected path
+import { authMiddleware } from './middleware/authMiddleware.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import connectToDatabase from './config/connection.js';
+import mongoose from 'mongoose';
 
 interface Context extends BaseContext {
   user?: {
@@ -20,7 +20,18 @@ interface Context extends BaseContext {
 
 const startServer = async () => {
   // Connect to the database
-  await connectToDatabase();
+  const MONGODB_URI = process.env.MONGODB_URI;
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI is not defined in the environment variables.');
+  }
+
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+    process.exit(1);
+  }
 
   const app = express();
   const PORT = process.env.PORT || 3001;
@@ -45,7 +56,7 @@ const startServer = async () => {
     expressMiddleware(server, {
       context: async ({ req }: { req: Request }) => {
         const user = authMiddleware({ req });
-        return { user }; // Pass the decoded user object to the context
+        return { user };
       },
     })
   );

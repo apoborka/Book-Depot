@@ -1,8 +1,9 @@
 import type { Book } from './Book';
 
 export interface User {
-  username: string | null;
-  email: string | null;
-  password: string | null;
-  savedBooks: Book[];
+  _id: string; // User ID
+  username: string; // Username
+  email: string; // Email address
+  password: string;
+  savedBooks: Book[]; // Array of saved books
 }

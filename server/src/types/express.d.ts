@@ -1,9 +1,13 @@
-import type { UserDocument } from '../models/User';
+import type { JwtPayload } from 'jsonwebtoken';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: UserDocument; // Define the type of req.user
+      user?: JwtPayload & {
+        _id: string;
+        username: string;
+        email: string;
+      };
     }
   }
 }

@@ -1,21 +1,58 @@
 import express from 'express';
-import path from 'node:path';
-import db from './config/connection.js';
-import routes from './routes/index.js';
+import type { Request } from 'express';
+import 'dotenv/config';
+import { ApolloServer, BaseContext } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { typeDefs } from './schemas/typeDefs.js';
+import { resolvers } from './schemas/resolvers.js';
+import { authMiddleware } from './middleware/authMiddleware.js'; // Corrected path
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import connectToDatabase from './config/connection.js';
 
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+interface Context extends BaseContext {
+  user?: {
+    _id: string;
+    username: string;
+    email: string;
+  };
 }
 
-app.use(routes);
+const startServer = async () => {
+  // Connect to the database
+  await connectToDatabase();
 
-db.once('open', () => {
-  app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
-});
+  const app = express();
+  const PORT = process.env.PORT || 3001;
+
+  app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    })
+  );
+
+  const server = new ApolloServer<Context>({
+    typeDefs,
+    resolvers,
+  });
+
+  await server.start();
+
+  app.use(bodyParser.json());
+  app.use(
+    '/graphql',
+    expressMiddleware(server, {
+      context: async ({ req }: { req: Request }) => {
+        const user = authMiddleware({ req });
+        return { user }; // Pass the decoded user object to the context
+      },
+    })
+  );
+
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}/graphql`);
+  });
+};
+
+startServer();

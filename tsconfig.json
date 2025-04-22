@@ -5,8 +5,8 @@
 
     /* Modules */
     "module": "ESNext" /* Specify what module code is generated. */,
-    "moduleResolution": "Bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "skipLibCheck": true,
+    "moduleResolution": "Node" /* Use Node.js-style module resolution instead of "Bundler" for compatibility with TypeScript and Node.js. */,
+    "skipLibCheck": true /* Skip type checking of declaration files for faster builds. */,
 
     /* JavaScript Support */
     "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
@@ -18,19 +18,26 @@
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
 
     /* Type Checking */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "strict": true /* Enable all strict type-checking options. */,
+    "noUnusedLocals": true /* Report errors on unused local variables. */,
+    "noUnusedParameters": true /* Report errors on unused function parameters. */,
+    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statements. */,
     "exactOptionalPropertyTypes": true /* Interpret optional property types as written, rather than adding 'undefined'. */,
     "noImplicitReturns": true /* Enable error reporting for codepaths that do not explicitly return in a function. */,
     "noImplicitOverride": true /* Ensure overriding members in derived classes are marked with an override modifier. */,
     "useUnknownInCatchVariables": true /* Ensure 'unknown' is used for catch clause variables. */,
+    "typeRoots": ["./node_modules/@types", "./server/src/types"] /* Include custom types and type declarations from node_modules. */,
 
     /* Emit */
     "outDir": "./dist" /* Specify an output folder for all emitted files. */,
-    "rootDir": "./server" /* Specify the root folder for input files. */
+    "rootDir": "./server" /* Specify the root folder for input files. */,
+
+    /* Additional Options */
+    "resolveJsonModule": true /* Allow importing .json files as modules. */,
+    "isolatedModules": true /* Ensure each file can be safely transpiled without relying on other files. */,
+    "strictNullChecks": true /* Ensure strict null checking for better type safety. */,
+    "noImplicitAny": true /* Raise an error on expressions and declarations with an implied 'any' type. */
   },
-  "include": ["server/src/**/*"], // Include only the server source files
-  "exclude": ["node_modules", "dist", "client"] // Exclude the client directory
+  "include": ["server/**/*"] /* Include all files in the server directory for compilation. */,
+  "exclude": ["node_modules", "dist", "client"] /* Exclude the client directory, build output, and node_modules. */
 }

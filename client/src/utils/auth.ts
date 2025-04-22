@@ -25,9 +25,9 @@ class AuthService {
     try {
       const decoded = jwtDecode<UserToken>(token);
       if (decoded.exp < Date.now() / 1000) {
+        localStorage.removeItem('id_token'); // Remove expired token
         return true;
-      } 
-      
+      }
       return false;
     } catch (err) {
       return false;
@@ -35,21 +35,17 @@ class AuthService {
   }
 
   getToken() {
-    // Retrieves the user token from localStorage
-    return localStorage.getItem('id_token');
+    return localStorage.getItem('id_token'); // Retrieves the user token from localStorage
   }
 
   login(idToken: string) {
-    // Saves user token to localStorage
-    localStorage.setItem('id_token', idToken);
-    window.location.assign('/');
+    localStorage.setItem('id_token', idToken); // Save the token to localStorage
+    window.location.assign('/'); // Redirect the user
   }
 
   logout() {
-    // Clear user token and profile data from localStorage
-    localStorage.removeItem('id_token');
-    // this will reload the page and reset the state of the application
-    window.location.assign('/');
+    localStorage.removeItem('id_token'); // Clear user token and profile data from localStorage
+    window.location.assign('/'); // this will reload the page and reset the state of the application
   }
 }
 

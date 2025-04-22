@@ -14,6 +14,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.14.1",
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.12.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }

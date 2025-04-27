@@ -1,8 +1,15 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Define __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import express from 'express';
 import type { Request } from 'express';
-import 'dotenv/config';
-import dotenv from 'dotenv';
-dotenv.config();
 import { ApolloServer, BaseContext } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs } from './schemas/typeDefs.js';
@@ -11,12 +18,6 @@ import { authMiddleware } from './middleware/authMiddleware.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Define __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 interface Context extends BaseContext {
   user?: {
@@ -44,7 +45,6 @@ const startServer = async () => {
   const app = express();
   const PORT = process.env.PORT || 3001;
   const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
-
 
   app.use(
     cors({

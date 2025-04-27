@@ -1,6 +1,8 @@
 import express from 'express';
 import type { Request } from 'express';
 import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 import { ApolloServer, BaseContext } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs } from './schemas/typeDefs.js';
@@ -41,7 +43,7 @@ const startServer = async () => {
 
   const app = express();
   const PORT = process.env.PORT || 3001;
-  const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173', 'https://book-depot-cq2y.onrender.com'];
+  const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
 
 
   app.use(

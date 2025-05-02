@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { client } from '../apolloClient';
 
-export const searchGoogleBooks = async (query: string) => {
+const searchGoogleBooks = async (query: string) => {
   const SEARCH_BOOKS_QUERY = gql`
     query SearchBooks($query: String!) {
       searchBooks(query: $query) {
@@ -25,3 +25,5 @@ export const searchGoogleBooks = async (query: string) => {
 
   return data.searchBooks;
 };
+
+export default searchGoogleBooks;
